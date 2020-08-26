@@ -3,11 +3,10 @@ A remote application management tool with a RESTful interface.
 See the Design Document for more details.
 
 ## Features
-- [ ] Cloud servlet accepts HTTP requests
+- [ ] Servlet accepts HTTP requests
     - [ ] From clients
-    - [ ] From local server
-- [ ] Client can get process information using GET on cloud server
-    - [ ] Cloud server can GET process information from local server
+- [ ] Client can get process information sending GET requests to servlet
     - [ ] Can get running status of process
-- [ ] Client can start or stop a process using PATCH on cloud server
-- [ ] Local server can expose processes to manage with POST
+- [ ] Client can start or stop a process using PUT on servlet
+- [ ] Local server exposes processes on the same machine to run
+    - [ ] Specify which processes to expose in a file
