@@ -13,6 +13,14 @@ public class ProcessInfo {
         this.running = running;
     }
 
+    public ProcessInfo(ProcessInfo p)
+    {
+        this.id = p.id;
+        this.name = p.name;
+        this.running = p.running;
+        this.path = p.path;
+    }
+
     public int getId() {
         return id;
     }
