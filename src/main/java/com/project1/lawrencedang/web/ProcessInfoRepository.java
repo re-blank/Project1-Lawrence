@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 public class ProcessInfoRepository {
     private List<ProcessInfo> mockDB;
     private int mock_id_count;
-    Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public ProcessInfoRepository()
     {

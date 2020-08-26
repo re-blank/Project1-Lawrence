@@ -2,10 +2,15 @@ package com.project1.lawrencedang.web;
 
 import com.project1.lawrencedang.ProcessInfo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 public class PutRequestHandler
 {
     ProcessInfo pi;
     ProcessInfoRepository repo;
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     public PutRequestHandler(ProcessInfo pi, ProcessInfoRepository repo)
     {
         this.pi = pi;
@@ -41,7 +46,7 @@ public class PutRequestHandler
             }
             catch(APIException e)
             {
-                System.err.println("Should never get here");
+                logger.warn("tryPut reached code that should never be executed");
                 return;
             }
         }

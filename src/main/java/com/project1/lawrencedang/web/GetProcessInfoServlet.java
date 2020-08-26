@@ -15,10 +15,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.project1.lawrencedang.ProcessInfo;
 
+import org.slf4j.Logger;  
+import org.slf4j.LoggerFactory;
+
 @WebServlet(name = "Test", value="/api/process/*")
 public class GetProcessInfoServlet extends HttpServlet
 {
     Pattern getIdPattern = Pattern.compile("/([0-9]+)");
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     ProcessInfoRepository repo;
     Gson gson;
     @Override
@@ -96,6 +100,7 @@ public class GetProcessInfoServlet extends HttpServlet
         }
         catch(PutModificationException e)
         {
+            logger.info("Illegal put modification: {}", gson.toJson(pi));
             resp.sendError(400);
         }
     }
