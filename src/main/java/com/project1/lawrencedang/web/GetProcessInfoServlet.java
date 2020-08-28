@@ -60,7 +60,7 @@ public class GetProcessInfoServlet extends HttpServlet
                 resp.sendError(404);
                 return;
             }
-
+            resp.setContentType("application/json");
             resp.getWriter().println(gson.toJson(process));
         }
     }

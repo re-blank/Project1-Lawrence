@@ -11,10 +11,10 @@ public class ProcessRunner implements Runnable {
     private Process process;
     private ProcessBuilder builder;
 
-    BlockingQueue<ProcessInfo> notifier;
+    BlockingQueue<ProcessNotification> notifier;
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public ProcessRunner(ProcessBuilder builder, ProcessInfo pi, BlockingQueue<ProcessInfo> sharedQueue)
+    public ProcessRunner(ProcessBuilder builder, ProcessInfo pi, BlockingQueue<ProcessNotification> sharedQueue)
     {
         this.builder = builder;
         this.pi = pi;
@@ -26,6 +26,11 @@ public class ProcessRunner implements Runnable {
         return this.pi;
     }
 
+    public boolean isRunning()
+    {
+        return this.pi.isRunning();
+    }
+
     public void run()
     {
         synchronized(this)
@@ -33,26 +38,42 @@ public class ProcessRunner implements Runnable {
             try
             {
                 this.process = builder.start();
+                pi.setRunning(true);
+                notifier.put(new ProcessNotification(new ProcessInfo(pi), false));
+                logger.info("Started process {}", pi.getName());
             }
             catch(IOException e)
             {
                 logger.warn("Failed to start process {}", pi.getName());
                 return;
             }
-            pi.setRunning(true);
+            catch(InterruptedException e)
+            {
+                Thread.currentThread().interrupt();
+            }
         }
         
         try
         {
             process.waitFor();
+            logger.debug("Process finished {}", pi.getName());
         }
         catch(InterruptedException e)
         {
             // What if it is stuck? Might have to forcibly destroy after x amt of time.
             process.destroy();
+            logger.info("Stopped process {}", pi.getName());
         }
         pi.setRunning(false);
-        notifier.add(new ProcessInfo(pi));
+        try
+        {
+            notifier.put(new ProcessNotification(new ProcessInfo(pi), false));
+        }
+        catch(InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+        }
+        this.process = null;
     }
 
 }
