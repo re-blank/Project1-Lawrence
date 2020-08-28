@@ -1,12 +1,12 @@
 package com.project1.lawrencedang.web;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.project1.lawrencedang.ProcessInfo;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for simple App.
@@ -14,7 +14,7 @@ import org.junit.Test;
 public class ProcessInfoRepositoryTest
 {
     ProcessInfoRepository repo;
-    @Before
+    @BeforeEach
     public void setup()
     {
         repo = new ProcessInfoRepository();
@@ -41,16 +41,16 @@ public class ProcessInfoRepositoryTest
         assertEquals(pi, gotObj);
     }
 
-    @Test(expected = APIException.class)
+    @Test
     public void getOutOfBoundsThrowsAPIException() throws APIException
     {
-        repo.get(-1);
+        assertThrows(APIException.class, () -> repo.get(-1));
     }
 
-    @Test(expected = APIException.class)
+    @Test
     public void putCannotAddNewProcess() throws APIException
     {
         ProcessInfo pi = new ProcessInfo(100, "put", "/", true);
-        repo.put(pi);
+        assertThrows(APIException.class, () -> repo.put(pi));
     }
 }

@@ -45,6 +45,7 @@ public class ProcessRunner implements Runnable {
             catch(IOException e)
             {
                 logger.warn("Failed to start process {}", pi.getName());
+                e.printStackTrace();
                 return;
             }
             catch(InterruptedException e)
