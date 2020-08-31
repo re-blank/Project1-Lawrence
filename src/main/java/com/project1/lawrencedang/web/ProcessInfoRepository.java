@@ -59,7 +59,8 @@ public class ProcessInfoRepository {
     public boolean put(ProcessInfo info) throws SQLException
     {
         PreparedStatement statement = putConn.prepareStatement("UPDATE Processes SET running = ? WHERE id = ?");
-        statement.setInt(1, info.getId());
+        statement.setBoolean(1, info.isRunning());
+        statement.setInt(2, info.getId());
         return statement.executeUpdate() > 0;
     }
 
@@ -74,6 +75,11 @@ public class ProcessInfoRepository {
         return info.getId();
     }
 
+    public void shutdown() throws SQLException
+    {
+        putConn.close();
+        getConn.close();
+    }
 
     
 }

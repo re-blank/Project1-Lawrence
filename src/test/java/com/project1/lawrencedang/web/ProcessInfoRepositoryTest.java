@@ -9,6 +9,7 @@ import java.sql.SQLException;
 
 import com.project1.lawrencedang.ProcessInfo;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +33,13 @@ public class ProcessInfoRepositoryTest
             throw e;
         }
     }
+
+    @AfterEach
+    public void teardown() throws SQLException
+    {
+        repo.shutdown();
+    }
+
     /**
      * Rigorous Test :-)
      */
@@ -51,6 +59,18 @@ public class ProcessInfoRepositoryTest
             throw e;
         }
         assertEquals(pi, gotObj);
+    }
+
+    @Test
+    public void putUpdatesProcess() throws SQLException
+    {
+        ProcessInfo pi = new ProcessInfo(0, "put", "/", true);
+        int id = repo.post(pi);
+        ProcessInfo pi2 = new ProcessInfo(pi);
+        pi2.setRunning(false);
+        repo.put(pi2);
+        pi.setRunning(false);
+        assertEquals(pi, repo.get(0));
     }
 
     /*

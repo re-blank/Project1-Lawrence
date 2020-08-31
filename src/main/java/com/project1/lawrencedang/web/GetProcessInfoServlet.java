@@ -50,6 +50,20 @@ public class GetProcessInfoServlet extends HttpServlet
         }
         
     }
+
+    @Override
+    public void destroy() {
+        try
+        {
+            repo.shutdown();
+        }
+        catch(SQLException e)
+        {
+            logger.warn("Database did not shut down properly.");
+        }
+        super.destroy();
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         System.out.println(req.getPathInfo());
@@ -109,16 +123,21 @@ public class GetProcessInfoServlet extends HttpServlet
         }
         try
         {
-            new PutRequestHandler(pi, repo).tryPut();
+            if(repo.put(pi))
+            {
+                return;
+            }
+            else
+            {
+                System.err.println("No update");
+                resp.sendError(404);
+                return;
+            }
         }
-        catch(PutCreationException e)
+        catch(SQLException e)
         {
-            resp.sendError(400);
-        }
-        catch(PutModificationException e)
-        {
-            logger.info("Illegal put modification: {}", gson.toJson(pi));
-            resp.sendError(400);
+            System.err.println(e.getMessage());
+            resp.sendError(404);
         }
     }
 
