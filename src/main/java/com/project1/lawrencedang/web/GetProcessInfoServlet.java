@@ -2,6 +2,7 @@ package com.project1.lawrencedang.web;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,10 +29,26 @@ public class GetProcessInfoServlet extends HttpServlet
     @Override
     public void init() throws ServletException {
         gson = new Gson();
-        repo = new ProcessInfoRepository();
-        repo.add("test1", "/", false);
-        repo.add("test2", "/test", false);
-        repo.add("test3", "/",  false);
+        try
+        {
+            repo = new ProcessInfoRepository();
+        }
+        catch(SQLException e)
+        {
+            logger.error("Could not connect to database.");
+            throw new ServletException("Failed to initialize Servlet.");
+        }
+        try
+        {
+            repo.post(new ProcessInfo(0, "test1", "/", false));
+            repo.post(new ProcessInfo(1, "test2", "/test", false));
+            repo.post(new ProcessInfo(2, "test3", "/", false));
+        }
+        catch(SQLException e)
+        {
+            throw new ServletException("Blah");
+        }
+        
     }
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -55,7 +72,7 @@ public class GetProcessInfoServlet extends HttpServlet
             {  
                 process = repo.get(id);
             }
-            catch(APIException e)
+            catch(SQLException e)
             {
                 resp.sendError(404);
                 return;

@@ -1,77 +1,79 @@
 package com.project1.lawrencedang.web;
 
-import com.project1.lawrencedang.ProcessInfo;
-
-import java.util.Collections;
+import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.project1.lawrencedang.ProcessInfo;
 
 public class ProcessInfoRepository {
+    final String dbPath = "file::memory:?cache=shared";
     private List<ProcessInfo> mockDB;
     private int mock_id_count;
+    Connection putConn;
+    Connection getConn;
 
-    public ProcessInfoRepository()
+    public ProcessInfoRepository() throws SQLException
     {
-        mockDB = Collections.synchronizedList(new ArrayList<ProcessInfo>());
-        mock_id_count = 0;
-    }
-
-    public ProcessInfo get(int id) throws APIException
-    {
-        try
-        {
-            return mockDB.get(id);
-        }
-        catch(IndexOutOfBoundsException e)
-        {
-            throw new APIException("Resource with id does not exist.");
-        }
+        // Initialize DB
+        Connection setupConn = DriverManager.getConnection("jdbc:sqlite:"+dbPath);
+        PreparedStatement p = setupConn.prepareStatement("CREATE TABLE IF NOT EXISTS Processes ("+
+            "id INTEGER PRIMARY KEY,"+
+            "name TEXT,"+
+            "path TEXT NOT NULL,"+
+            "running INTEGER NOT NULL)");
+        p.execute();
         
+        putConn = DriverManager.getConnection("jdbc:sqlite:"+dbPath);
+        getConn = DriverManager.getConnection("jdbc:sqlite:"+dbPath);
+        getConn.setAutoCommit(true);
+        putConn.setAutoCommit(true);
+        setupConn.close();
     }
 
-    public boolean put(ProcessInfo info) throws APIException
+    public ProcessInfo get(int id) throws SQLException
     {
-        try
+        PreparedStatement statement = getConn.prepareStatement("SELECT * FROM Processes WHERE id = ?");
+        statement.setInt(1, id);
+        ResultSet rs = statement.executeQuery();
+        ProcessInfo pi = null;
+        while(rs.next())
         {
-            if(info.getId() >= 0 && info.getId() < mockDB.size())
-            {
-                mockDB.set(info.getId(), info);
-                return true;
-            }
-            else 
-            {
-                throw new APIException("Resource with id does not exist");
-            }
+            // Fill
+            int process_id = rs.getInt(1);
+            String name = rs.getString(2);
+            String path = rs.getString(3);
+            boolean running = rs.getBoolean(4);
+            pi = new ProcessInfo(process_id, name, path, running);
         }
-        catch(IndexOutOfBoundsException e)
-        {
-            e.printStackTrace();
-            throw e;
-        }
+
+        return pi;
     }
 
-    public int post(String name, String path, boolean running)
+    public boolean put(ProcessInfo info) throws SQLException
     {
-        try
-        {
-            return add(name, path, running);
-
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-        return -1;
+        PreparedStatement statement = putConn.prepareStatement("UPDATE Processes SET running = ? WHERE id = ?");
+        statement.setInt(1, info.getId());
+        return statement.executeUpdate() > 0;
     }
 
-    public synchronized int add(String name, String path, boolean running)
+    public int post(ProcessInfo info) throws SQLException
     {
-        ProcessInfo p = new ProcessInfo(mock_id_count, name, path, running);
-        mockDB.add(p);
-        return mock_id_count++;
+        PreparedStatement statement = putConn.prepareStatement("INSERT INTO Processes(id, name, path, running) VALUES(?, ?, ?, ?)");
+        statement.setInt(1, info.getId());
+        statement.setString(2, info.getName());
+        statement.setString(3, info.getPath());
+        statement.setBoolean(4, info.isRunning());
+        statement.executeUpdate();
+        return info.getId();
     }
+
+
     
 }
