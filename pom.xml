@@ -95,6 +95,11 @@
                 <containerId>tomcat9x</containerId>
                 <type>embedded</type>
                 </container>
+            <configuration>
+                <properties>
+                    <cargo.servlet.port>8081</cargo.servlet.port>
+                </properties>
+            </configuration>
             </configuration>
         </plugin>
       </plugins>
