@@ -116,6 +116,7 @@ public class GetProcessInfoServlet extends HttpServlet
             }
             catch(SQLException e)
             {
+                logger.warn("Failed to access to database");
                 resp.sendError(404);
                 return;
             }
