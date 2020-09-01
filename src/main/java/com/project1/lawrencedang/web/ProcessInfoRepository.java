@@ -16,6 +16,15 @@ public class ProcessInfoRepository {
     public ProcessInfoRepository() throws SQLException
     {
         // Initialize DB
+        try
+        {
+            Class.forName("org.sqlite.JDBC");
+        }
+        catch(ClassNotFoundException e)
+        {
+            throw new SQLException("Could not find sqlite driver");
+        }
+        
         Connection setupConn = DriverManager.getConnection("jdbc:sqlite:"+dbPath);
         PreparedStatement p = setupConn.prepareStatement("CREATE TABLE IF NOT EXISTS Processes ("+
             "id INTEGER PRIMARY KEY,"+
