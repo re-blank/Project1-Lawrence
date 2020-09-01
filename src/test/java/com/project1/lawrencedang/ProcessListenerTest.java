@@ -34,7 +34,7 @@ public class ProcessListenerTest {
         Map<Integer, ProcessRunner> runners = new HashMap<>();
         Map<Integer, ExecutionInfo> pMap = new HashMap<>();
         Path path = Paths.get(System.getProperty("java.home"), "bin");
-        pMap.put(0, new ExecutionInfo("test", "java.exe", path.toString()));
+        pMap.put(0, new ExecutionInfo("test", "java", path.toString()));
         listener = new ProcessListener(inQueue, outQueue, futures, runners, threadPool, pMap);
         // Ignore new process update
         outQueue.take();
@@ -44,7 +44,7 @@ public class ProcessListenerTest {
     //@Timeout(value = 3, unit = TimeUnit.SECONDS)
     public void outputsCorrectProcessInfo() throws InterruptedException
     {
-        ProcessInfo testProcess = new ProcessInfo(0, "test", "java.exe", true);
+        ProcessInfo testProcess = new ProcessInfo(0, "test", "java", true);
         ProcessNotification testNotif = new ProcessNotification(testProcess, true);
         Thread thread = new Thread(listener);
         thread.start();
@@ -56,7 +56,7 @@ public class ProcessListenerTest {
 
         // Sent on process finish
         ProcessUpdate second = outQueue.poll(2, TimeUnit.SECONDS);
-        assertEquals(new ProcessInfo(0, "test", "java.exe", false), second.getPi());
+        assertEquals(new ProcessInfo(0, "test", "java", false), second.getPi());
         assertEquals(UpdateType.REPLACE, second.getUpdateType());
     }
 }
