@@ -13,17 +13,19 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import com.project1.lawrencedang.ProcessUpdate.UpdateType;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class ProcessListenerTest {
     ProcessListener listener;
     BlockingQueue<ProcessNotification> inQueue;
-    BlockingQueue<ProcessInfo> outQueue;
+    BlockingQueue<ProcessUpdate> outQueue;
     ExecutorService threadPool;
 
     @BeforeEach
-    public void setup()
+    public void setup() throws InterruptedException
     {
         inQueue = new LinkedBlockingQueue<>(5);
         outQueue = new LinkedBlockingQueue<>(5);
@@ -34,6 +36,8 @@ public class ProcessListenerTest {
         Path path = Paths.get(System.getProperty("java.home"), "bin");
         pMap.put(0, new ExecutionInfo("test", "java.exe", path.toString()));
         listener = new ProcessListener(inQueue, outQueue, futures, runners, threadPool, pMap);
+        // Ignore new process update
+        outQueue.take();
     }
 
     @Test
@@ -46,11 +50,13 @@ public class ProcessListenerTest {
         thread.start();
         inQueue.put(testNotif);
         // Sent on process start
-        ProcessInfo first = outQueue.poll(2, TimeUnit.SECONDS);
-        assertEquals(testProcess, first);
+        ProcessUpdate first = outQueue.poll(2, TimeUnit.SECONDS);
+        assertEquals(testProcess, first.getPi());
+        assertEquals(UpdateType.REPLACE, first.getUpdateType());
 
         // Sent on process finish
-        ProcessInfo second = outQueue.poll(2, TimeUnit.SECONDS);
-        assertEquals(new ProcessInfo(0, "test", "java.exe", false), second);
+        ProcessUpdate second = outQueue.poll(2, TimeUnit.SECONDS);
+        assertEquals(new ProcessInfo(0, "test", "java.exe", false), second.getPi());
+        assertEquals(UpdateType.REPLACE, second.getUpdateType());
     }
 }

@@ -9,6 +9,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import com.project1.lawrencedang.ProcessUpdate.UpdateType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,13 +18,13 @@ public class ProcessListener implements Runnable {
     private Map<Integer, ExecutionInfo> processMap;
 
     private BlockingQueue<ProcessNotification> notificationQueue;
-    private BlockingQueue<ProcessInfo> outputQueue;
+    private BlockingQueue<ProcessUpdate> outputQueue;
     private Map<Integer, Future<?>> processRunnerThreads;
     private Map<Integer, ProcessRunner> processRunners;
     private ExecutorService threadPool;
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public ProcessListener(BlockingQueue<ProcessNotification> processQueue, BlockingQueue<ProcessInfo> outputQueue, Map<Integer, ExecutionInfo> pMap)
+    public ProcessListener(BlockingQueue<ProcessNotification> processQueue, BlockingQueue<ProcessUpdate> outputQueue, Map<Integer, ExecutionInfo> pMap)
     {
         processMap = pMap;
         notificationQueue = processQueue;
@@ -33,7 +35,7 @@ public class ProcessListener implements Runnable {
         initializeProcessRunners();
     }
 
-    public ProcessListener(BlockingQueue<ProcessNotification> processQueue, BlockingQueue<ProcessInfo> outputQueue, 
+    public ProcessListener(BlockingQueue<ProcessNotification> processQueue, BlockingQueue<ProcessUpdate> outputQueue, 
                             Map<Integer, Future<?>> processThreads, Map<Integer, ProcessRunner> futures, ExecutorService threadPool, Map<Integer, ExecutionInfo> pMap)
     {
         processMap = pMap;
@@ -76,7 +78,7 @@ public class ProcessListener implements Runnable {
             {
                 try
                 {
-                    outputQueue.put(pi);
+                    outputQueue.put(new ProcessUpdate(pi, UpdateType.REPLACE));
                 }
                 catch(InterruptedException e)
                 {
@@ -93,7 +95,7 @@ public class ProcessListener implements Runnable {
         for(Entry<Integer, ExecutionInfo> entry: processMap.entrySet())
         {
             ExecutionInfo exec = entry.getValue();
-            String processPath = exec.getPathToFile();
+            String processPath = exec.getWorkingDir() +File.separator + exec.getFilename();
             String interpreterString = exec.getInterpreter();
             ProcessBuilder builder;
             if(!interpreterString.equals(""))
@@ -107,7 +109,15 @@ public class ProcessListener implements Runnable {
             
             File dir = new File(exec.getWorkingDir());
             builder.directory(dir);
-            ProcessInfo pi = new ProcessInfo(entry.getKey(), exec.getName(), processPath, false);
+            ProcessInfo pi = new ProcessInfo(entry.getKey(), exec.getName(), exec.getFilename(), false);
+            try
+            {
+                outputQueue.put(new ProcessUpdate(pi, UpdateType.NEW));
+            }
+            catch(InterruptedException e)
+            {
+                Thread.currentThread().interrupt();
+            }
             
             processRunners.put(entry.getKey(), new ProcessRunner(builder, pi, notificationQueue));
         }

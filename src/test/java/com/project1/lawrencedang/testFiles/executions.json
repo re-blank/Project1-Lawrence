@@ -1,0 +1,11 @@
+{
+    "executions":[
+        {
+            "interpreter":"testInterpreter",
+            "filename":"test",
+            "workingDir":"test1/test2",
+            "name":"test.exe",
+            "args":["test1", "test2"]
+        }
+    ]
+}

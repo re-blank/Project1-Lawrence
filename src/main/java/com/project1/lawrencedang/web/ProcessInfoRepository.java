@@ -1,21 +1,15 @@
 package com.project1.lawrencedang.web;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import com.project1.lawrencedang.ProcessInfo;
 
 public class ProcessInfoRepository {
     final String dbPath = "file::memory:?cache=shared";
-    private List<ProcessInfo> mockDB;
-    private int mock_id_count;
     Connection putConn;
     Connection getConn;
 

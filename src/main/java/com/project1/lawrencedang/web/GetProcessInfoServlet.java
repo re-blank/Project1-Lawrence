@@ -1,10 +1,17 @@
 package com.project1.lawrencedang.web;
 
+import static com.project1.lawrencedang.web.PatternMatcher.getRequestId;
+
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.sql.SQLException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,21 +21,48 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.project1.lawrencedang.DBUpdater;
+import com.project1.lawrencedang.ExecutionInfo;
+import com.project1.lawrencedang.ExecutionLoader;
 import com.project1.lawrencedang.ProcessInfo;
+import com.project1.lawrencedang.ProcessListener;
+import com.project1.lawrencedang.ProcessNotification;
+import com.project1.lawrencedang.ProcessUpdate;
 
-import org.slf4j.Logger;  
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @WebServlet(name = "Test", value="/api/process/*")
 public class GetProcessInfoServlet extends HttpServlet
 {
-    Pattern getIdPattern = Pattern.compile("/([0-9]+)");
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    ProcessInfoRepository repo;
     Gson gson;
+    
+    private ExecutorService threadPool; 
+    BlockingQueue<ProcessNotification> sharedQueue;
+    ProcessInfoRepository repo;
+    
+    
     @Override
     public void init() throws ServletException {
+        threadPool = Executors.newFixedThreadPool(2);
         gson = new Gson();
+        BlockingQueue<ProcessUpdate> outputQueue = new LinkedBlockingQueue<>();
+        sharedQueue = new LinkedBlockingQueue<>();
+        HashMap<Integer, ExecutionInfo> pMap = new HashMap<>();
+        ExecutionLoader loader = new ExecutionLoader(pMap);
+        try
+        {
+            loader.loadProcessesIfExists();
+        }
+        catch(FileNotFoundException e)
+        {
+            System.err.println("Could not find execution json!");
+            logger.error("Could not load executions");
+            throw new ServletException("Failed to load executions");
+        }
+        ProcessListener listener = new ProcessListener(sharedQueue, outputQueue, pMap);
+
         try
         {
             repo = new ProcessInfoRepository();
@@ -38,16 +72,10 @@ public class GetProcessInfoServlet extends HttpServlet
             logger.error("Could not connect to database.");
             throw new ServletException("Failed to initialize Servlet.");
         }
-        try
-        {
-            repo.post(new ProcessInfo(0, "test1", "/", false));
-            repo.post(new ProcessInfo(1, "test2", "/test", false));
-            repo.post(new ProcessInfo(2, "test3", "/", false));
-        }
-        catch(SQLException e)
-        {
-            throw new ServletException("Blah");
-        }
+        DBUpdater updater = new DBUpdater(outputQueue, repo);
+
+        threadPool.execute(updater);
+        threadPool.execute(listener);
         
     }
 
@@ -91,6 +119,11 @@ public class GetProcessInfoServlet extends HttpServlet
                 resp.sendError(404);
                 return;
             }
+            if(process == null)
+            {
+                resp.sendError(404);
+                return;
+            }
             resp.setContentType("application/json");
             resp.getWriter().println(gson.toJson(process));
         }
@@ -121,34 +154,24 @@ public class GetProcessInfoServlet extends HttpServlet
             resp.sendError(400);
             return;
         }
+
+        boolean success = false;
         try
         {
-            if(repo.put(pi))
-            {
-                return;
-            }
-            else
-            {
-                System.err.println("No update");
-                resp.sendError(404);
-                return;
-            }
+            success = sharedQueue.offer(new ProcessNotification(pi, true), 5, TimeUnit.SECONDS);
         }
-        catch(SQLException e)
+        catch(InterruptedException e)
         {
-            System.err.println(e.getMessage());
-            resp.sendError(404);
+            logger.info("Tried to interrup Servlet while offering update");
         }
-    }
-
-    public int getRequestId(String path)
-    {
-        Matcher matcher = getIdPattern.matcher(path);
-        if(matcher.matches())
+        if(success)
         {
-            return Integer.parseInt(matcher.group(1));
+            resp.setStatus(HttpServletResponse.SC_ACCEPTED);
         }
-
-        return -1;
+        else
+        {
+            resp.sendError(500);
+        }
+        return;
     }
 }
