@@ -32,7 +32,8 @@ import com.project1.lawrencedang.ProcessUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@WebServlet(name = "Test", value="/api/process/*")
+
+@WebServlet(name = "Test", value="/api/process/*", loadOnStartup = 0)
 public class GetProcessInfoServlet extends HttpServlet
 {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -45,6 +46,7 @@ public class GetProcessInfoServlet extends HttpServlet
     
     @Override
     public void init() throws ServletException {
+        System.out.println("Initializing servlet");
         threadPool = Executors.newFixedThreadPool(2);
         gson = new Gson();
         BlockingQueue<ProcessUpdate> outputQueue = new LinkedBlockingQueue<>();
@@ -76,7 +78,7 @@ public class GetProcessInfoServlet extends HttpServlet
 
         threadPool.execute(updater);
         threadPool.execute(listener);
-        
+        System.out.println("Finished initializing servlet");
     }
 
     @Override
