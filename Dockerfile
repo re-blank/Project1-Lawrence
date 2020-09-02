@@ -3,6 +3,6 @@ WORKDIR /root
 RUN mkdir hprocrunner
 WORKDIR ./hprocrunner
 COPY ./run.sh ./
-COPY ./target/ ./
+COPY ./target/ ./target
 EXPOSE 8081
 ENTRYPOINT [ "./run.sh" ]
