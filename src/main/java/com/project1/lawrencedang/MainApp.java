@@ -11,11 +11,11 @@ import org.apache.catalina.startup.Tomcat;
 
 public class MainApp {
     public static void main(String[] args) throws LifecycleException {
+        final String base = new File("./").getAbsolutePath();
         Tomcat server = new Tomcat();
-        server.setBaseDir(new File("target/tomcat/").getAbsolutePath());
         server.setPort(8081);
         server.getConnector();
-        server.addWebapp("/project1", new File("src/main/resources/").getAbsolutePath());
+        server.addWebapp("/project1", base);
         Wrapper wrapper = server.addServlet("/project1", "Test", new GetProcessInfoServlet());
         wrapper.addMapping("/api/process/*");
         wrapper.setLoadOnStartup(0);
