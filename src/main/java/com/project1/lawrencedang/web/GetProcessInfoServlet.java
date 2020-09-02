@@ -71,6 +71,7 @@ public class GetProcessInfoServlet extends HttpServlet
         }
         catch(SQLException e)
         {
+            e.printStackTrace();
             logger.error("Could not connect to database.");
             throw new ServletException("Failed to initialize Servlet.");
         }
