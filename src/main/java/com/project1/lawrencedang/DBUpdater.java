@@ -53,6 +53,10 @@ public class DBUpdater implements Runnable {
             {
                 logger.warn("Failed to access database");
             }
+            if(Thread.interrupted())
+            {
+                return;
+            }
         }
 
     }

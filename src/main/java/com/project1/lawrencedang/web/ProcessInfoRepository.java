@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.project1.lawrencedang.ProcessInfo;
 
@@ -57,6 +59,29 @@ public class ProcessInfoRepository {
         }
 
         return pi;
+    }
+
+    /**
+     * Gets all ProcessInfo entries.
+     */
+    public List<ProcessInfo> get() throws SQLException
+    {
+        PreparedStatement statement = getConn.prepareStatement("SELECT * FROM Processes ORDER BY id ASC");
+        ResultSet rs = statement.executeQuery();
+        ProcessInfo pi = null;
+        List<ProcessInfo> piList = new ArrayList<>();
+        while(rs.next())
+        {
+            // Fill
+            int process_id = rs.getInt(1);
+            String name = rs.getString(2);
+            String path = rs.getString(3);
+            boolean running = rs.getBoolean(4);
+            pi = new ProcessInfo(process_id, name, path, running);
+            piList.add(pi);
+        }
+
+        return piList;
     }
 
     public boolean put(ProcessInfo info) throws SQLException

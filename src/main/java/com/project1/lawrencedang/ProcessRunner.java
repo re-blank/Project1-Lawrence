@@ -50,7 +50,9 @@ public class ProcessRunner implements Runnable {
             }
             catch(InterruptedException e)
             {
+                interruptProcess();
                 Thread.currentThread().interrupt();
+                return;
             }
         }
         
@@ -62,8 +64,9 @@ public class ProcessRunner implements Runnable {
         catch(InterruptedException e)
         {
             // What if it is stuck? Might have to forcibly destroy after x amt of time.
-            process.destroy();
-            logger.info("Stopped process {}", pi.getName());
+            interruptProcess();
+            Thread.currentThread().interrupt();
+            return;
         }
         pi.setRunning(false);
         try
@@ -72,9 +75,20 @@ public class ProcessRunner implements Runnable {
         }
         catch(InterruptedException e)
         {
+            logger.debug("Interrupted while putting new state to listener");
             Thread.currentThread().interrupt();
         }
-        this.process = null;
+        finally
+        {
+            this.process = null;
+        }
     }
 
+    private void interruptProcess()
+    {
+        this.process.destroy();
+        pi.setRunning(false);
+        logger.info("Stopped process {}", pi.getName());
+        this.process = null;
+    }
 }

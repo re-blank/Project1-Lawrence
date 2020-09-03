@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+
 import com.project1.lawrencedang.DBUpdater;
 import com.project1.lawrencedang.ExecutionInfo;
 import com.project1.lawrencedang.ExecutionLoader;
@@ -32,9 +33,12 @@ import com.project1.lawrencedang.ProcessUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * Main public-facing interface to the application. Handles incoming requests and responds.
+ * Initializes necessary background threads to process requests during servlet initialization.
+ */
 @WebServlet(name = "Test", value="/api/process/*", loadOnStartup = 0)
-public class GetProcessInfoServlet extends HttpServlet
+public class ProcessInfoServlet extends HttpServlet
 {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     Gson gson;
@@ -42,8 +46,11 @@ public class GetProcessInfoServlet extends HttpServlet
     private ExecutorService threadPool; 
     BlockingQueue<ProcessNotification> sharedQueue;
     ProcessInfoRepository repo;
-    
-    
+
+    /**
+     * Initializes the resources necessary for this application to function.
+     * Sets up threads for Process launching, database updating, and sets up communication channels between them.
+     */
     @Override
     public void init() throws ServletException {
         System.out.println("Initializing servlet");
@@ -82,8 +89,12 @@ public class GetProcessInfoServlet extends HttpServlet
         System.out.println("Finished initializing servlet");
     }
 
+    /**
+     * Shuts down this servlet, trying to close database connections and clean up threads.
+     */
     @Override
     public void destroy() {
+        
         try
         {
             repo.shutdown();
@@ -98,38 +109,49 @@ public class GetProcessInfoServlet extends HttpServlet
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         System.out.println(req.getPathInfo());
-        int id = getRequestId(req.getPathInfo());
-        if(id <= -1)
+        if(req.getPathInfo() == null || req.getPathInfo().equals("/"))
         {
-            if(req.getPathInfo() == null)
-            {
-                resp.sendError(405);
-            }
-            else
-            {
-                resp.sendError(404);
-            }
-        }
-        else
-        {
-            ProcessInfo process;
+            PIListJson lst;
             try
-            {  
-                process = repo.get(id);
+            {
+                lst = new PIListJson(repo.get());
             }
             catch(SQLException e)
             {
-                logger.warn("Failed to access to database");
+                System.err.println("Failed to access database");
                 resp.sendError(404);
                 return;
             }
-            if(process == null)
+            resp.getWriter().println(gson.toJson(lst));
+        }
+        else
+        {
+            int id = getRequestId(req.getPathInfo());
+            if(id <= -1)
             {
                 resp.sendError(404);
-                return;
             }
-            resp.setContentType("application/json");
-            resp.getWriter().println(gson.toJson(process));
+            else
+            {
+                ProcessInfo process;
+                try
+                {  
+                    process = repo.get(id);
+                }
+                catch(SQLException e)
+                {
+                    logger.warn("Failed to access to database");
+                    resp.sendError(404);
+                    return;
+                }
+                if(process == null)
+                {
+                    resp.sendError(404);
+                    return;
+                }
+                resp.setContentType("application/json");
+                resp.getWriter().println(gson.toJson(process));
+            }            
         }
     }
 
@@ -162,7 +184,7 @@ public class GetProcessInfoServlet extends HttpServlet
         try
         {
             ProcessInfo compare = repo.get(pi.getId());
-            if(!(compare != null && compare.getName() == pi.getName() && compare.getPath() == pi.getPath()))
+            if(!(compare != null && compare.getName().equals(pi.getName()) && compare.getPath().equals(pi.getPath())))
             {  
                 resp.sendError(400);
                 return;
