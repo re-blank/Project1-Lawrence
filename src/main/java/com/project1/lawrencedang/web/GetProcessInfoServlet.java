@@ -158,6 +158,23 @@ public class GetProcessInfoServlet extends HttpServlet
             resp.sendError(400);
             return;
         }
+        // Check if this process matches one in db
+        try
+        {
+            ProcessInfo compare = repo.get(pi.getId());
+            if(!(compare != null && compare.getName() == pi.getName() && compare.getPath() == pi.getPath()))
+            {  
+                resp.sendError(400);
+                return;
+            }
+        }
+        catch(SQLException e)
+        {
+            logger.warn("Failed to access database.");
+            return;
+        }
+
+        
 
         boolean success = false;
         try
@@ -166,7 +183,7 @@ public class GetProcessInfoServlet extends HttpServlet
         }
         catch(InterruptedException e)
         {
-            logger.info("Tried to interrup Servlet while offering update");
+            logger.info("Tried to interrupt Servlet while offering update");
         }
         if(success)
         {
