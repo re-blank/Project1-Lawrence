@@ -1,11 +1,21 @@
 package com.project1.lawrencedang;
 
+/**
+ * ProcessInfo represents a single instance of a process created from an ExecutionInfo.
+ */
 public class ProcessInfo {
     private int id;
     private String name;
     private boolean running;
     private String path;
     
+    /**
+     * Creates a new ProcessInfo with the specified information
+     * @param id
+     * @param name
+     * @param path
+     * @param running
+     */
     public ProcessInfo(int id, String name, String path, boolean running) {
         this.id = id;
         this.name = name;
@@ -13,6 +23,10 @@ public class ProcessInfo {
         this.running = running;
     }
 
+    /**
+     * Creates a copy of the supplied ProcessInfo
+     * @param p
+     */
     public ProcessInfo(ProcessInfo p)
     {
         this.id = p.id;

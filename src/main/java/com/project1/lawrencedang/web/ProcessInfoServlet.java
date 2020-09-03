@@ -106,6 +106,9 @@ public class ProcessInfoServlet extends HttpServlet
         super.destroy();
     }
 
+    /**
+     * Gets the ProcessInfo associated with this endpoint. Sends an error if the ProcessInfo is not found.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         System.out.println(req.getPathInfo());
@@ -155,6 +158,9 @@ public class ProcessInfoServlet extends HttpServlet
         }
     }
 
+    /**
+     * Sends a notification to the ProcessListener to modify the process associated with this endpoint.
+     */
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {

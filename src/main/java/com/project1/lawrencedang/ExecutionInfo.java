@@ -2,6 +2,9 @@ package com.project1.lawrencedang;
 
 import java.util.Arrays;
 
+/**
+ * An ExecutionInfo contains the information to create a process. It reflects an element in the "executions" list in "executions.json".
+ */
 public class ExecutionInfo {
     private String interpreter;
     private String filename;
@@ -11,6 +14,13 @@ public class ExecutionInfo {
     private String[] interpreterArgs;
     private String[] args;
 
+    /**
+     * Creates a new ExecutionInfo with the specified information, no interpreter, and no args or flags
+     * @param name
+     * @param pathToDir
+     * @param filename
+     * @param workingDir
+     */
     public ExecutionInfo(String name, String pathToDir, String filename, String workingDir) {
         this.interpreter = "";
         this.pathToDir = pathToDir;
@@ -21,6 +31,14 @@ public class ExecutionInfo {
         this.args = null;
     }
 
+    /**
+     * Creates a new ExecutionInfo with the specified information, args, and flags, and no interpreter
+     * @param name
+     * @param pathToDir
+     * @param filename
+     * @param workingDir
+     * @param args
+     */
     public ExecutionInfo(String name, String pathToDir, String filename, String workingDir, String[] args) {
         this.interpreter = "";
         this.pathToDir = pathToDir;
@@ -31,6 +49,16 @@ public class ExecutionInfo {
         this.args = args;
     }
 
+    /**
+     * Creates a new ExecutionInfo with the specified information, to be run by an interpreter, possibly with interpreter flags and args.
+     * @param name
+     * @param pathToDir
+     * @param interpreter
+     * @param filename
+     * @param workingDir
+     * @param interpreterArgs
+     * @param args
+     */
     public ExecutionInfo(String name, String pathToDir, String interpreter, String filename, String workingDir, String[] interpreterArgs, String[] args) {
         this.interpreter = interpreter;
         this.pathToDir = pathToDir;

@@ -1,5 +1,9 @@
 package com.project1.lawrencedang;
 
+/**
+ * A ProcessUpdate is a wrapper around ProcessInfo that contains information about how DBUpdate should handle
+ * the update.
+ */
 public class ProcessUpdate {
     public enum UpdateType
     {

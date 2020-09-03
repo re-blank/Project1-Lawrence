@@ -23,6 +23,9 @@ public class DBUpdater implements Runnable {
         this.repo = repo;
     }
 
+    /**
+     * Waits for an update from the ProcessListener, then updates the database according to the received update.
+     */
     public void run()
     {
         while(true)

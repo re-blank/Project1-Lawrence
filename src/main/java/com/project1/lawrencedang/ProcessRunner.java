@@ -6,6 +6,10 @@ import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * ProcessRunner executes a single process then waits for it to finish. If interrupted while waiting, it will kill its subprocess.
+ * ProcessRunner also sends the current state the Process upon starting and stopping the Process.
+ */
 public class ProcessRunner implements Runnable {
     private ProcessInfo pi;
     private Process process;
@@ -14,6 +18,12 @@ public class ProcessRunner implements Runnable {
     BlockingQueue<ProcessNotification> notifier;
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    /**
+     * Creates a new ProcessRunner. The specified ProcessBuilder will be used to create the process.
+     * @param builder
+     * @param pi
+     * @param sharedQueue
+     */
     public ProcessRunner(ProcessBuilder builder, ProcessInfo pi, BlockingQueue<ProcessNotification> sharedQueue)
     {
         this.builder = builder;

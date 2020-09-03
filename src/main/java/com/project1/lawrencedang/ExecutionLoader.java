@@ -11,10 +11,17 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+/**
+ * ExecutionLoader converts the "executions.json" file into a mapping containing ExecutionInfo objects.
+ */
 public class ExecutionLoader {
     Map<Integer, ExecutionInfo> pMap;
     private String pathToDirectory;
     private String nameOfConfigFile;
+    /**
+     * Create a new ExecutionLoader that will attempt to read the "executions.json" file in the default "${user.home}/.hprocrunner/" directory.
+     * @param pMap the processMap to fill.
+     */
     public ExecutionLoader(Map<Integer, ExecutionInfo> pMap)
     {
         this.pMap = pMap;
@@ -22,6 +29,12 @@ public class ExecutionLoader {
         nameOfConfigFile = "executions.json";
     }
 
+    /**
+     * Create a new ExecutionLoader that will attempt to read the specified file in the specified directory.
+     * @param pMap
+     * @param pathToDirectory
+     * @param executionFilename
+     */
     public ExecutionLoader(Map<Integer, ExecutionInfo> pMap, String pathToDirectory, String executionFilename)
     {
         this.pMap = pMap;
@@ -29,6 +42,10 @@ public class ExecutionLoader {
         nameOfConfigFile = executionFilename;
     }
 
+    /**
+     * Converts the JSON in the file to a Map, and store it in the supplied map. 
+     * @throws FileNotFoundException
+     */
     public void loadProcessesIfExists() throws FileNotFoundException
     {
         File dir = new File(pathToDirectory);

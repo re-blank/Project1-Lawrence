@@ -11,11 +11,19 @@ import java.util.List;
 import com.project1.lawrencedang.ProcessInfo;
 import com.zaxxer.hikari.HikariDataSource;
 
+/**
+ * A DAO that manages connections to an in-memory SQLite database. Because the entries are reloaded on
+ * startup, there is no need to persist the database to a file.
+ */
 public class ProcessInfoRepository {
     final String dbPath = "file::memory:?cache=shared";
 
     HikariDataSource ds;
 
+    /**
+     * Initializes a new ProcessInfo repository.
+     * @throws SQLException if a connection cannot be established to the in-memory database.
+     */
     public ProcessInfoRepository() throws SQLException
     {
         // Initialize DB
@@ -40,6 +48,10 @@ public class ProcessInfoRepository {
         setupConn.close();
     }
 
+    /**
+     * Gets the ProcessInfo with the specified id.
+     * @throws SQLException
+     */
     public ProcessInfo get(int id) throws SQLException
     {
         try(Connection getConn = ds.getConnection())
@@ -62,7 +74,8 @@ public class ProcessInfoRepository {
     }
 
     /**
-     * Gets all ProcessInfo entries.
+     * Gets all Processes entries as ProcessInfo.
+     * @throws SQLException
      */
     public List<ProcessInfo> get() throws SQLException
     {
@@ -87,6 +100,10 @@ public class ProcessInfoRepository {
         }   
     }
 
+    /**
+     * Updates the Processes entry corresponding to the specified ProcessInfo with the new running state.
+     * @throws SQLException
+     */
     public boolean put(ProcessInfo info) throws SQLException
     {
         try(Connection putConn = ds.getConnection())
@@ -99,6 +116,10 @@ public class ProcessInfoRepository {
         
     }
 
+    /**
+     * Creates a new Processes entry reflecting the supplied ProcessInfo
+     * @throws SQLException
+     */
     public int post(ProcessInfo info) throws SQLException
     {
         try(Connection putConn = ds.getConnection())
@@ -113,6 +134,10 @@ public class ProcessInfoRepository {
         }
     }
 
+    /**
+     * Closes the connection pool
+     * @throws SQLException
+     */
     public void shutdown() throws SQLException
     {
         ds.close();

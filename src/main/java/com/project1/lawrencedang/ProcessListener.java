@@ -18,6 +18,10 @@ import com.project1.lawrencedang.ProcessUpdate.UpdateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * ProcessListener manages the launching of ProcessRunner threads. It waits for the Servlet to send notifications, then
+ * decides whether to start, stop, or leave ProcessRunner threads alone. It also sends updates to the DBUpdater.
+ */
 public class ProcessListener implements Runnable {
     private Map<Integer, ExecutionInfo> processMap;
 
