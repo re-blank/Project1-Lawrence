@@ -39,8 +39,8 @@ public class ProcessRunner implements Runnable {
             {
                 this.process = builder.start();
                 pi.setRunning(true);
-                notifier.put(new ProcessNotification(new ProcessInfo(pi), false));
                 logger.info("Started process {}", pi.getName());
+                notifier.put(new ProcessNotification(new ProcessInfo(pi), false));
             }
             catch(IOException e)
             {
@@ -50,7 +50,7 @@ public class ProcessRunner implements Runnable {
             }
             catch(InterruptedException e)
             {
-                interruptProcess();
+                endProcess();
                 Thread.currentThread().interrupt();
                 return;
             }
@@ -59,16 +59,14 @@ public class ProcessRunner implements Runnable {
         try
         {
             process.waitFor();
+            pi.setRunning(false);
             logger.debug("Process finished {}", pi.getName());
         }
         catch(InterruptedException e)
         {
-            // What if it is stuck? Might have to forcibly destroy after x amt of time.
-            interruptProcess();
-            Thread.currentThread().interrupt();
-            return;
+            endProcess();
         }
-        pi.setRunning(false);
+
         try
         {
             notifier.put(new ProcessNotification(new ProcessInfo(pi), false));
@@ -84,9 +82,11 @@ public class ProcessRunner implements Runnable {
         }
     }
 
-    private void interruptProcess()
+    private void endProcess()
     {
-        this.process.destroy();
+        if(this.process.isAlive())
+            this.process.destroy();
+
         pi.setRunning(false);
         logger.info("Stopped process {}", pi.getName());
         this.process = null;

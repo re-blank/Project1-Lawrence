@@ -90,7 +90,10 @@ public class ProcessListener implements Runnable {
                     return;
                 }
             }
-            
+            if(Thread.interrupted())
+            {
+                return;
+            }
         }
     }
 
