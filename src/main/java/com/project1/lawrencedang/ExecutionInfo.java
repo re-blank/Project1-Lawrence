@@ -5,33 +5,42 @@ import java.util.Arrays;
 public class ExecutionInfo {
     private String interpreter;
     private String filename;
+    private String pathToDir;
     private String workingDir;
     private String name;
+    private String[] interpreterArgs;
     private String[] args;
 
-    public ExecutionInfo(String name, String filename, String workingDir) {
+    public ExecutionInfo(String name, String pathToDir, String filename, String workingDir) {
         this.interpreter = "";
+        this.pathToDir = pathToDir;
         this.name = name;
         this.filename = filename;
         this.workingDir = workingDir;
+        this.interpreterArgs = null;
         this.args = null;
     }
 
-    public ExecutionInfo(String name, String filename, String workingDir, String[] args) {
+    public ExecutionInfo(String name, String pathToDir, String filename, String workingDir, String[] args) {
         this.interpreter = "";
+        this.pathToDir = pathToDir;
         this.name = name;
         this.filename = filename;
         this.workingDir = workingDir;
+        this.interpreterArgs = null;
         this.args = args;
     }
 
-    public ExecutionInfo(String name, String interpreter, String filename, String workingDir, String[] args) {
+    public ExecutionInfo(String name, String pathToDir, String interpreter, String filename, String workingDir, String[] interpreterArgs, String[] args) {
         this.interpreter = interpreter;
+        this.pathToDir = pathToDir;
         this.name = name;
         this.filename = filename;
         this.workingDir = workingDir;
+        this.interpreterArgs = interpreterArgs;
         this.args = args;
     }
+
 
     public String getFilename() {
         return filename;
@@ -72,6 +81,23 @@ public class ExecutionInfo {
     public void setName(String name) {
         this.name = name;
     }
+
+    public String getPathToDir() {
+        return pathToDir;
+    }
+
+    public void setPathToDir(String pathToDir) {
+        this.pathToDir = pathToDir;
+    }
+
+    public String[] getInterpreterArgs() {
+        return interpreterArgs;
+    }
+
+    public void setInterpreterArgs(String[] interpreterArgs) {
+        this.interpreterArgs = interpreterArgs;
+    }
+    
 
     @Override
     public boolean equals(Object obj) {

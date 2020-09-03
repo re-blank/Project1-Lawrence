@@ -34,7 +34,7 @@ public class ProcessListenerTest {
         Map<Integer, ProcessRunner> runners = new HashMap<>();
         Map<Integer, ExecutionInfo> pMap = new HashMap<>();
         Path path = Paths.get(System.getProperty("java.home"), "bin");
-        pMap.put(0, new ExecutionInfo("test", "java", path.toString()));
+        pMap.put(0, new ExecutionInfo("test",path.toString(), "java", path.toString()));
         listener = new ProcessListener(inQueue, outQueue, futures, runners, threadPool, pMap);
         // Ignore new process update
         outQueue.take();
