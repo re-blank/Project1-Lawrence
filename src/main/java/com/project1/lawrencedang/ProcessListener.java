@@ -1,6 +1,10 @@
 package com.project1.lawrencedang;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,6 +14,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import com.project1.lawrencedang.ProcessUpdate.UpdateType;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,17 +101,28 @@ public class ProcessListener implements Runnable {
         for(Entry<Integer, ExecutionInfo> entry: processMap.entrySet())
         {
             ExecutionInfo exec = entry.getValue();
-            String processPath = exec.getWorkingDir() +File.separator + exec.getFilename();
             String interpreterString = exec.getInterpreter();
             ProcessBuilder builder;
+            ArrayList<String> pBuilderArgs = new ArrayList<>();
             if(!interpreterString.equals(""))
             {
-                builder = new ProcessBuilder(interpreterString, processPath);
+                pBuilderArgs.add(interpreterString);
+                if(exec.getInterpreterArgs() != null)
+                {
+                    pBuilderArgs.addAll(Arrays.asList(exec.getInterpreterArgs()));
+                }
             }
-            else
+            if(!exec.getFilename().equals("") && !exec.getPathToDir().equals(""))
             {
-                builder = new ProcessBuilder(processPath);
+                Path dirPath = Paths.get(exec.getPathToDir(), exec.getFilename()).toAbsolutePath();
+                pBuilderArgs.add(dirPath.toAbsolutePath().toString());
+                if(exec.getArgs() != null && exec.getArgs().length > 0)
+                {
+                    pBuilderArgs.addAll(Arrays.asList(exec.getArgs()));
+                }
             }
+            
+            builder = new ProcessBuilder(pBuilderArgs);
             
             File dir = new File(exec.getWorkingDir());
             builder.directory(dir);
