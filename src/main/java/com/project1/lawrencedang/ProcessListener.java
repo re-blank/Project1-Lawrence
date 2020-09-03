@@ -15,8 +15,6 @@ import java.util.concurrent.Future;
 
 import com.project1.lawrencedang.ProcessUpdate.UpdateType;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +62,7 @@ public class ProcessListener implements Runnable {
             }
             catch(InterruptedException e)
             {
-                prematureShutdown();
+                threadPool.shutdownNow();
                 return;
             }
             
