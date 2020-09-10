@@ -49,7 +49,9 @@ pipeline {
         }
         stage('Build Image')
         {
-            sh "docker build -t reblank/hprocrunner ."
+            steps{
+                sh "docker build -t reblank/hprocrunner ."
+            }
             post{
                 failure{
                     error "Failed to create docker image"
