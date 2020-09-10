@@ -47,6 +47,15 @@ pipeline {
                 }
             }
         }
+        stage('Build Image')
+        {
+            sh "docker build -t reblank/hprocrunner ."
+            post{
+                failure{
+                    error "Failed to create docker image"
+                }
+            }
+        }
     }
     post {
                 // If Maven was able to run the tests, even if some of the test
