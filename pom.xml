@@ -19,6 +19,9 @@
     <logback.version>1.2.3</logback.version>
     <tomcat.version>9.0.37</tomcat.version>
     <exec.mainClass>com.project1.lawrencedang.MainApp</exec.mainClass>
+    <sonar.projectKey>re-blank_Project2-LawrenceTest</sonar.projectKey>
+    <sonar.organization>re-blank</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
   </properties>
 
   <dependencies>
